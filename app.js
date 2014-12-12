@@ -61,6 +61,7 @@ app.get('/', function(req, res) {
 	res.render('index', { user: req.user });
 });
 
+// User routes
 app.get('/users/new', function(req, res) {
 	res.render('users/new');
 });
@@ -73,6 +74,7 @@ app.post('/users', function(req, res) {
 	});
 });
 
+// Session routes
 app.get('/sessions/new', function(req, res) {
 	res.render('sessions/new');
 });
@@ -85,6 +87,33 @@ app.post('/sessions', passport.authenticate('local',
 app.delete('/sessions', function(req, res) {
 	req.logout();
 	res.redirect('/');
+});
+
+// Post routes
+app.get('/posts/new', function(req, res) {
+	res.render('posts/new');
+});
+
+app.post('/posts', function(req, res) {
+	db.query('INSERT INTO posts (title, body, user_id) VALUES ($1, $2, $3)', [req.body.title, req.body.body, req.user.id], function(err, dbRes) {
+			if (!err) {
+				res.redirect('/posts');
+			}
+	});
+});
+
+app.get('/posts', function(req, res) {
+	db.query('SELECT * FROM posts', function(err, dbRes) {
+		res.render('posts/index', { posts: dbRes.rows });
+	});
+});
+
+app.get('/posts/:id', function(req, res) {
+	db.query('SELECT * FROM posts WHERE id = $1', [req.params.id], function(err, dbRes) {
+		if (!err) {
+			res.render('posts/show', { post: dbRes.rows[0] });
+		}
+	});
 });
 
 
