@@ -17,10 +17,46 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+	db.query('SELECT * FROM users WHERE id = $1', [id], function(err, dbRes) {
+		if (!err) {
+			done(err, dbRes.rows[0]);
+		}
+	});
+  // findById(id, function (err, user) {
+  //   done(err, user);
+  // });
+});
 
 app.listen(3000, function() {
 	console.log('Server is up!');
 });
+
+var localStrategy = new LocalStrategy(
+  function(username, password, done) {
+    db.query('SELECT * FROM users WHERE username = $1', [username], function(err, dbRes) {
+    	user = dbRes.rows[0];
+    	console.log(username)
+
+    	console.log(user);
+
+
+      if (err) { return done(err); }
+      if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
+      if (user.password != password) { return done(null, false, { message: 'Invalid password' }); }
+      return done(null, user);
+    })
+  }
+);
+
+passport.use(localStrategy);
 
 app.get('/', function(req, res) {
 	res.render('index');
@@ -44,7 +80,12 @@ app.get('/sessions/new', function(req, res) {
 
 app.post('/sessions', passport.authenticate('local', 
   {failureRedirect: '/sessions/new'}), function(req, res) {
-    db.query('SELECT * FROM users WHERE email = $1 AND password = $2', [], function() {});
+    res.redirect('/');
+});
+
+app.delete('/sessions', function(req, res) {
+	req.logout();
+	res.redirect('/');
 });
 
 
