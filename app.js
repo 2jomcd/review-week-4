@@ -30,9 +30,6 @@ passport.deserializeUser(function(id, done) {
 			done(err, dbRes.rows[0]);
 		}
 	});
-  // findById(id, function (err, user) {
-  //   done(err, user);
-  // });
 });
 
 app.listen(3000, function() {
@@ -42,7 +39,7 @@ app.listen(3000, function() {
 var localStrategy = new LocalStrategy(
   function(username, password, done) {
     db.query('SELECT * FROM users WHERE username = $1', [username], function(err, dbRes) {
-    	user = dbRes.rows[0];
+    	var user = dbRes.rows[0];
     	console.log(username)
 
     	console.log(user);
