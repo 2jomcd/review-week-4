@@ -7,9 +7,11 @@ var express = require('express'),
 		session       = require('express-session'),
 		LocalStrategy = require('passport-local').Strategy,
 		passport      = require('passport'),
-		db						= require('./db.js');
+		db						= require('./db.js'),
+		methodOverride = require('method-override');
 
 app.set('view engine', 'ejs');
+app.use(methodOverride('_method'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({'extended':true}));
 app.use(session({
@@ -56,7 +58,7 @@ var localStrategy = new LocalStrategy(
 passport.use(localStrategy);
 
 app.get('/', function(req, res) {
-	res.render('index');
+	res.render('index', { user: req.user });
 });
 
 app.get('/users/new', function(req, res) {
@@ -84,6 +86,7 @@ app.delete('/sessions', function(req, res) {
 	req.logout();
 	res.redirect('/');
 });
+
 
 
 
