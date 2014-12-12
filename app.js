@@ -116,6 +116,30 @@ app.get('/posts/:id', function(req, res) {
 	});
 });
 
+app.get('/posts/:id/edit', function(req, res) {
+	db.query('SELECT * FROM posts WHERE id = $1', [req.params.id], function(err, dbRes) {
+		if (!err) {
+			res.render('posts/edit', { post: dbRes.rows[0] });
+		}
+	});
+});
+
+app.patch('/posts/:id', function(req, res) {
+	db.query('UPDATE posts SET title = $1, body = $2 WHERE id = $3', [req.body.title, req.body.body, req.params.id], function(err, dbRes) {
+		if (!err) {
+			res.redirect('/posts/' + req.params.id);
+		}
+	});
+});
+
+app.delete('/posts/:id', function(req, res) {
+	db.query('DELETE FROM posts WHERE id = $1', [req.params.id], function(err, dbRes) {
+		if (!err) {
+			res.redirect('/posts');
+		}
+	})
+});
+
 
 
 
